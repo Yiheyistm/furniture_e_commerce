@@ -1,21 +1,27 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:furniture_e_commerce/core/features/splash/view/splash_view.dart';
+import 'package:furniture_e_commerce/core/locator/locator.dart';
+import 'package:furniture_e_commerce/core/provider/auth_provider.dart';
+import 'package:furniture_e_commerce/core/routes/routes.dart';
+import 'package:furniture_e_commerce/firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 Future<void> main() async {
-  // try {
-  //   WidgetsFlutterBinding.ensureInitialized();
-  //   await Firebase.initializeApp(
-  //     options: DefaultFirebaseOptions.currentPlatform,
-  //   );
-  // } catch (errorMsg) {
-  //   print("Error: $errorMsg");
-  // }
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    DependencyInjector.init();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (errorMsg) {
+    print("Error: $errorMsg");
+  }
   runApp(
     MultiProvider(
       providers: [
-        // ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
         // ChangeNotifierProvider(create: (context) => CartProvider()),
         // ChangeNotifierProvider(create: (context) => ThemeModeProvider()),
       ],
@@ -27,7 +33,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -39,6 +45,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const SplashView(),
     );
+    
   }
 }
 
