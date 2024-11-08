@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "270250279660",
+    "project_id": "furniture-detection-88995",
+    "storage_bucket": "furniture-detection-88995.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:270250279660:android:b60730a41ce33d0aff9bc9",
+        "android_client_info": {
+          "package_name": "com.deshet.tech.furniture_e_commerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJdWajD1Zg3m0Es-4AadQ43PXPECHPh1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
