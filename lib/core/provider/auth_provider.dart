@@ -1,31 +1,24 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:furniture_e_commerce/core/controllers/auth_controller.dart';
 import 'package:furniture_e_commerce/core/helper/alert_helper.dart';
 import 'package:furniture_e_commerce/core/locator/locator.dart';
-import 'package:furniture_e_commerce/core/routes/route_name.dart';
 import 'package:furniture_e_commerce/model/user_model.dart';
-import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 
-class AuthProvider extends ChangeNotifier {
+class MyAuthProvider extends ChangeNotifier {
   final CollectionReference users =
       FirebaseFirestore.instance.collection('users');
 
   final AuthConroller _authConroller = locator<AuthConroller>();
-
-  //userName textfiled controller
-  final TextEditingController _userName = TextEditingController();
-
-  TextEditingController get userName => _userName;
-  //email textfiled controller
-  final TextEditingController _email = TextEditingController();
-
-  TextEditingController get email => _email;
   // password textfiled controller
   final TextEditingController _password = TextEditingController();
 
@@ -42,28 +35,6 @@ class AuthProvider extends ChangeNotifier {
   TextEditingController get oldPassword => _oldPassword;
   TextEditingController get newPassword => _newPassword;
 
-  // Validate the input data
-  bool validateField(BuildContext context) {
-    if (_userName.text.isEmpty &&
-        _email.text.isEmpty &&
-        _password.text.isEmpty) {
-      Logger().w("Please fill the all the field");
-      AlertHelpers.showAlert(context, "Please fill the all the fields");
-      return false;
-    } else if (!_email.text.contains("@")) {
-      Logger().w("Please enter valid email");
-      AlertHelpers.showAlert(context, "Please enter valid email");
-      return false;
-    } else if (_password.text.length < 6) {
-      Logger().w("Password must have more than 6 digits");
-      AlertHelpers.showAlert(context, "Password must have more than 6 digits");
-      return false;
-    } else {
-      Logger().w("All fileds are validated");
-      return true;
-    }
-  }
-
   // Loader state
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -75,52 +46,27 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Start the signup process
-  Future<void> startSignup(BuildContext context) async {
+  Future<void> startSignup({
+    required BuildContext context,
+    required String email,
+    required String password,
+    required String userName,
+  }) async {
     try {
-      if (validateField(context) && validatePasswords(context)) {
-        // start the loader
-        setLoading(true);
-        // start creating the user
-        await _authConroller
-            .signupUser(context, _email.text, _password.text, _userName.text)
-            .then((value) {
-          // clear the controllers
-          _email.clear();
-          _password.clear();
-          _userName.clear();
-
-          // stop the loader
-          setLoading(false);
-        });
-      }
+      // start the loader
+      setLoading(true);
+      // start creating the user
+      await _authConroller
+          .signupUser(context, email, password, userName)
+          .then((value) {
+        startFetchUserData(context);
+        setLoading(false);
+      });
     } catch (e) {
       Logger().w(e);
       setLoading(false);
       AlertHelpers.showAlert(context, e.toString());
     }
-  }
-
-  // initialize the user and listen to the auth state changes
-
-  Future<void> initializedUser(BuildContext context) async {
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      if (user == null) {
-        Logger().w('User is currently signed out!');
-
-        // if user is null then navigate to signup screen
-        context.pushNamed(RouteName.signUpView);
-      } else {
-        await startFetchUserData(context, user.uid).then(
-          (value) {
-            Logger().w('User is signed in!');
-            // if user is not null then navigate to main screen
-            context.goNamed(RouteName.homeView);
-          },
-        );
-        Logger().w('User is signed in!');
-        context.goNamed(RouteName.homeView);
-      }
-    });
   }
 
   // sign out function
@@ -128,82 +74,44 @@ class AuthProvider extends ChangeNotifier {
     await FirebaseAuth.instance.signOut();
   }
 
-  //  Login User Feature 
-  //email textfiled controller
-  final TextEditingController _loginEmail = TextEditingController();
-
-  TextEditingController get loginEmail => _loginEmail;
-  // password textfiled controller
-  final TextEditingController _loginPassword = TextEditingController();
-
-  TextEditingController get loginPassword => _loginPassword;
-
-  bool validateLoginField(BuildContext context) {
-   
-    if (_loginEmail.text.isEmpty && _loginPassword.text.isEmpty) {
-      Logger().w("Please fill all  fields");
-      AlertHelpers.showAlert(context, "Please fill all  fields");
-      return false;
-    } else if (!_loginEmail.text.contains("@")) {
-      Logger().w("Please enter valid email");
-      AlertHelpers.showAlert(context, "Please enter valid email");
-      return false;
-    } else if (_loginPassword.text.length < 6) {
-      Logger().w("Password must have more than 6 digits");
-      AlertHelpers.showAlert(context, "Password must have more than 6 digits");
-      return false;
-    } else {
-      Logger().w("All fileds are validated");
-      return true;
-    }
-  }
-
   // Start the login process
-  Future<void> startLogin(BuildContext context) async {
+  Future<void> startLogin({
+    required BuildContext context,
+    required String email,
+    required String password,
+  }) async {
     try {
-      // validate the input
-      if (validateLoginField(context)) {
-        // start the loader
-        setLoading(true);
-        // start creating the user
-        await _authConroller
-            .loginUser(context, _loginEmail.text, _loginPassword.text)
-            .then((value) {
-          // clear the controllers
-          _loginEmail.clear();
-          _loginPassword.clear();
+      setLoading(true);
 
-          // stop the loader
-          setLoading(false);
-        });
-      }
+      await _authConroller.loginUser(context, email, password).then((value) {
+        startFetchUserData(context);
+        setLoading(false);
+      });
     } catch (e) {
       Logger().w(e);
       setLoading(false);
+      Fluttertoast.showToast(msg: e.toString());
+
       AlertHelpers.showAlert(context, e.toString());
     }
   }
 
-  //  Reset User Password Function 
+  //  Reset User Password Function
 
-  // password textfiled controller
   final TextEditingController _resetEmail = TextEditingController();
 
   TextEditingController get resetEmail => _resetEmail;
 
   // Start the login process
-  Future<void> SendPasswordResetEmail(BuildContext context) async {
+  Future<void> sendPasswordResetEmail(
+      {required BuildContext context, required String resetEmail}) async {
     try {
       // validate the input
       if (_resetEmail.text.isNotEmpty) {
         // start the loader
         setLoading(true);
         // start creating the user
-        await _authConroller.sendEmail(context, _resetEmail.text).then((value) {
-          // clear the controllers
-          _resetEmail.clear();
-
-          // stop the loader
+        await _authConroller.sendEmail(context, resetEmail).then((value) {
           setLoading(false);
         });
       }
@@ -215,13 +123,14 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // userModel object to store the user data
-  UserModel? _userModel;
-  UserModel? get userModel => _userModel;
+  UserModel _userModel = locator<UserModel>();
+  UserModel get userModel => _userModel;
 
   // start fetch user data data
-  Future<void> startFetchUserData(BuildContext context, String uid) async {
+  Future<void> startFetchUserData(BuildContext context) async {
     try {
-      await _authConroller.fetchUserData(context, uid).then((value) {
+      User user = _authConroller.getCurrentUser();
+      await _authConroller.fetchUserData(user.uid).then((value) {
         if (value != null) {
           _userModel = value;
           notifyListeners();
@@ -235,45 +144,45 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Pick image from uplaod and update the user profile
-  // final ImagePicker picker = ImagePicker();
+  final ImagePicker picker = ImagePicker();
 
   // file object
-  // File _image = File("");
-  // File get image => _image;
+  File _image = File("");
+  File get image => _image;
 
-  // Future<void> selectImage(BuildContext context) async {
-  //   try {
-  //     // Pick an image.
-  //     final XFile? pickFile =
-  //         await picker.pickImage(source: ImageSource.gallery);
-  //     Logger().i(pickFile?.path);
+  Future<void> selectImage(BuildContext context) async {
+    try {
+      // Pick an image.
+      final XFile? pickFile =
+          await picker.pickImage(source: ImageSource.gallery);
+      Logger().i(pickFile?.path);
 
-  //     if (pickFile != null) {
-  //       _image = File(pickFile.path);
-  //       notifyListeners();
+      if (pickFile != null) {
+        _image = File(pickFile.path);
+        notifyListeners();
 
-  //       setLoading(true);
+        setLoading(true);
 
-  //       // start uploading the image
-  //       final imageUrl = await _authConroller.uploadAndUpdateProfileImage(
-  //           _image, _userModel!.uid);
+        // start uploading the image
+        final imageUrl = await _authConroller.uploadAndUpdateProfileImage(
+            _image, _userModel.uid);
 
-  //       if (imageUrl.isNotEmpty) {
-  //         _image = File("");
+        if (imageUrl.isNotEmpty) {
+          _image = File("");
 
-  //         _userModel!.img = imageUrl;
-  //         notifyListeners();
-  //         setLoading(false);
-  //       } else {
-  //         AlertHelpers.showAlert(context, "error uploading the image");
-  //       }
-  //     } else {
-  //       Logger().w("Image not selected");
-  //     }
-  //   } catch (e) {
-  //     Logger().e(e);
-  //   }
-  // }
+          _userModel.img = imageUrl;
+          notifyListeners();
+          setLoading(false);
+        } else {
+          AlertHelpers.showAlert(context, "error uploading the image");
+        }
+      } else {
+        Logger().w("Image not selected");
+      }
+    } catch (e) {
+      Logger().e(e);
+    }
+  }
 
   // Update user profile (username and email)
   Future<void> updateUserProfile(
@@ -293,11 +202,9 @@ class AuthProvider extends ChangeNotifier {
       });
 
       // Update the local user model
-      if (_userModel != null) {
-        _userModel!.userName = newUserName;
-        // _userModel!.password = newPassword;
-        notifyListeners();
-      }
+      _userModel.userName = newUserName;
+      // _userModel!.password = newPassword;
+      notifyListeners();
 
       setLoading(false);
       AlertHelpers.showAlert(context, "Profile updated successfully",

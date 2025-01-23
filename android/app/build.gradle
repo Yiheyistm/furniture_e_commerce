@@ -27,8 +27,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.deshet.tech.furniture_e_commerce"
-    compileSdk flutter.compileSdkVersion
-    ndkVersion "26.3.11579264"
+    compileSdk 34
+    ndkVersion "25.1.8937393"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -48,7 +48,7 @@ android {
         applicationId "com.deshet.tech.furniture_e_commerce"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 30
+        minSdkVersion 24
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -67,4 +67,9 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+// dependencies {
+//     implementation 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21'
+//     implementation 'com.google.ar:core:1.47.0'
+//     implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.17.1'
+//     implementation 'com.google.ar.sceneform:core:1.17.1'
+// }

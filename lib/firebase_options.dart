@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -65,4 +56,34 @@ class DefaultFirebaseOptions {
     storageBucket: 'furniture-detection-88995.firebasestorage.app',
     iosBundleId: 'com.deshet.tech.furnitureECommerce',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDdFxMoJpyeA74wJqMUFDnHmTDbLiDI9uI',
+    appId: '1:270250279660:web:b4a0b19c4c923b65ff9bc9',
+    messagingSenderId: '270250279660',
+    projectId: 'furniture-detection-88995',
+    authDomain: 'furniture-detection-88995.firebaseapp.com',
+    storageBucket: 'furniture-detection-88995.firebasestorage.app',
+    measurementId: 'G-WML63N57FG',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAZIUpAULMhLeQ091kp-HwbeXmSKSt8bcA',
+    appId: '1:270250279660:ios:c6abfd94cfbaf1a7ff9bc9',
+    messagingSenderId: '270250279660',
+    projectId: 'furniture-detection-88995',
+    storageBucket: 'furniture-detection-88995.firebasestorage.app',
+    iosBundleId: 'com.deshet.tech.furnitureECommerce',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyDdFxMoJpyeA74wJqMUFDnHmTDbLiDI9uI',
+    appId: '1:270250279660:web:9e74dd3c9beb67e9ff9bc9',
+    messagingSenderId: '270250279660',
+    projectId: 'furniture-detection-88995',
+    authDomain: 'furniture-detection-88995.firebaseapp.com',
+    storageBucket: 'furniture-detection-88995.firebasestorage.app',
+    measurementId: 'G-127GMPKCC7',
+  );
+
 }

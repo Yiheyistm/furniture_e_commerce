@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:furniture_e_commerce/core/components/custom_text.dart';
-import 'package:furniture_e_commerce/core/provider/auth_provider.dart';
+import 'package:furniture_e_commerce/core/routes/route_name.dart';
 import 'package:furniture_e_commerce/core/utils/app_color.dart';
-import 'package:logger/logger.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 
 class SplashView extends StatefulWidget {
@@ -17,14 +16,11 @@ class SplashView extends StatefulWidget {
 class _SplashViewState extends State<SplashView> {
   @override
   void initState() {
-    Logger().d("Splash Screen");
-    Future.delayed(
-      const Duration(seconds: 2),
-      () {
-        Provider.of<AuthProvider>(context, listen: false)
-            .initializedUser(context);
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(seconds: 5)).then((_) {
+        context.goNamed(RouteName.authWrapper);
+      });
+    });
 
     super.initState();
   }
@@ -32,34 +28,51 @@ class _SplashViewState extends State<SplashView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // const AppLogo(
-            //   width: 331,
-            //   height: 331,
-            // ),
-            Lottie.asset(
-              // Replace with your Lottie JSON file path
-              'assets/lottie/splashScreen.json',
-              width: 300,
-              height: 300,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Background image
+          Image.asset(
+            'assets/images/banner2.jpg',
+            fit: BoxFit.cover,
+          ),
+          // Overlay with opacity
+          Container(
+            color: Colors.black.withOpacity(0.5),
+          ),
+          // Content
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Lottie.asset(
+                    'assets/lottie/splashScreen.json',
+                    
+                  ),
+                ),
+                const SizedBox(height: 72),
+                FadeInUp(
+                  child: const CustomText(
+                    "Roomify AR",
+                    fontSize: 24,
+                    textAlign: TextAlign.center,
+                    color: AppColors.primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Progress indicator
+                const CircularProgressIndicator(
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+                ),
+              ],
             ),
-            const SizedBox(
-              height: 72,
-            ),
-            FadeInUp(
-              child: const CustomText(
-                "Build your own Reality with Us..\nExplore the world of AR E-Furniture",
-                fontSize: 20,
-                textAlign: TextAlign.center,
-                color: AppColors.primaryColor,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
