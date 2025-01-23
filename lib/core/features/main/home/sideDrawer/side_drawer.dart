@@ -102,7 +102,7 @@ class SideDrawer extends StatelessWidget {
               title:
                   const Text('Sign Out', style: TextStyle(color: Colors.red)),
               onTap: () {
-                authProvider.logOut();
+                authProvider.logOut(context);
                 Navigator.of(context).pop(); // close the drawer
               },
             ),

@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:furniture_e_commerce/core/controllers/auth_controller.dart';
+import 'package:furniture_e_commerce/core/features/auth/view/login_view.dart';
 import 'package:furniture_e_commerce/core/helper/alert_helper.dart';
 import 'package:furniture_e_commerce/core/locator/locator.dart';
 import 'package:furniture_e_commerce/model/user_model.dart';
@@ -70,7 +71,11 @@ class MyAuthProvider extends ChangeNotifier {
   }
 
   // sign out function
-  Future<void> logOut() async {
+  Future<void> logOut(BuildContext context) async {
+    // Navigator.of(context).pushAndRemoveUntil(
+    //     MaterialPageRoute(builder: (context) {
+    //   return const LoginView();
+    // }), (route) => false);
     await FirebaseAuth.instance.signOut();
   }
 

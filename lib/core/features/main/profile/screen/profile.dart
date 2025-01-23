@@ -33,7 +33,7 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    _darkThemeEnabled = _storageService.getData("isDarkMode");
+    _darkThemeEnabled = _storageService.getData("isDarkMode") ?? false;
   }
 
   @override
@@ -340,7 +340,8 @@ class _ProfileState extends State<Profile> {
                               onTap: () {
                                 Provider.of<MyAuthProvider>(context,
                                         listen: false)
-                                    .logOut();
+                                    .logOut(context);
+                                setState(() {});
                               },
                             ),
                           ),

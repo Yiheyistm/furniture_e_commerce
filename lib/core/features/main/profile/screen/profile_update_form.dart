@@ -77,7 +77,8 @@ class _ProfileUpdateFormState extends State<ProfileUpdateForm> {
                         text: "Update Profile",
                         onTap: () {
                           if (_oldPasswordController.text.isEmpty ||
-                              _newPasswordController.text.isEmpty) {
+                              _newPasswordController.text.isEmpty ||
+                              _usernameController.text.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text("Fill all fields")));
