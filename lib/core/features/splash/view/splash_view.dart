@@ -18,7 +18,9 @@ class _SplashViewState extends State<SplashView> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 5)).then((_) {
-        context.goNamed(RouteName.authWrapper);
+        if (mounted) {
+          GoRouter.of(context).goNamed(RouteName.authWrapper);
+        }
       });
     });
 

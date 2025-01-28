@@ -47,19 +47,22 @@ class _MainViewState extends State<MainView> {
       body: _screens.elementAt(_activeIndex),
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.transparent,
-        color: Theme.of(context).shadowColor,
+        color: Theme.of(context).shadowColor.withOpacity(.4),
+        
         buttonBackgroundColor: _activeIndex != 4
             ? Theme.of(context).primaryColor
             : Colors.transparent,
         height: 60,
         items: [
-          const Icon(Icons.home_rounded, size: 20),
-          const Icon(Icons.search_rounded, size: 20),
-          const Icon(Icons.add, size: 20),
+          const Icon(Icons.home_rounded, size: 25),
+          const Icon(Icons.search_rounded, size: 25),
+          const Icon(Icons.add, size: 25),
           Badge.count(
               count: cartProvider.cartItems.length,
-              backgroundColor: AppColors.infoColor,
-              child: const Icon(Icons.shopping_cart, size: 20)),
+              backgroundColor: _activeIndex != 3
+                  ? AppColors.primaryColor
+                  : AppColors.infoColor,
+              child: const Icon(Icons.shopping_cart, size: 25)),
           CircleAvatar(
             radius: 16,
             backgroundImage: NetworkImage(userModel.img),

@@ -7,6 +7,7 @@ import 'package:furniture_e_commerce/core/components/custom_text.dart';
 import 'package:furniture_e_commerce/core/components/custom_text_field.dart';
 import 'package:furniture_e_commerce/core/components/google_auth_btn.dart';
 import 'package:furniture_e_commerce/core/helper/alert_helper.dart';
+import 'package:furniture_e_commerce/core/helper/show_loading_dialog.dart';
 import 'package:furniture_e_commerce/core/provider/auth_provider.dart';
 import 'package:furniture_e_commerce/core/routes/route_name.dart';
 import 'package:furniture_e_commerce/core/utils/app_assets.dart';
@@ -43,7 +44,7 @@ class _SignupViewState extends State<SignupView> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(35.0),
             child: Form(
               key: _registerFormKey,
               child: Column(
@@ -96,6 +97,9 @@ class _SignupViewState extends State<SignupView> {
                       if (value!.isEmpty) {
                         return "Email cannot be empty";
                       }
+                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return "Enter a valid email address";
+                      }
                       return null;
                     },
                   ),
@@ -139,7 +143,7 @@ class _SignupViewState extends State<SignupView> {
                           context.pushNamed(RouteName.loginView);
                         },
                         child: const Text(
-                          "Login",
+                          " Login",
                           style: TextStyle(
                             color: AppColors.primaryColor,
                             fontWeight: FontWeight.bold,
@@ -148,6 +152,29 @@ class _SignupViewState extends State<SignupView> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Consumer<MyAuthProvider>(
+                    builder: (context, authProvider, child) {
+                      return SizedBox(
+                        width: double.infinity,
+                        child: CustomButton(
+                          text: "Sign up",
+                          isLoading: authProvider.isLoading,
+                          onTap: () {
+                            if (_registerFormKey.currentState!.validate()) {
+                              authProvider.startSignup(
+                                  userName: _usernameController.text,
+                                  email: _emailController.text,
+                                  password: _passwordController.text,
+                                  context: context);
+                            }
+                          },
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 30),
                   Row(
@@ -176,30 +203,25 @@ class _SignupViewState extends State<SignupView> {
                     ],
                   ),
                   const SizedBox(height: 30),
-                  GoogleBtn(
-                    text: "Continue with Google",
-                    onPressed: _signInWithGoogle,
+                  Consumer<MyAuthProvider>(
+                    builder: (context, authProvider, child) {
+                      return GoogleBtn(
+                        text: "Continue with Google",
+                        onPressed: authProvider.isLoading
+                            ? () {
+                                showLoadingDialog(context);
+                              }
+                            : () {
+                                authProvider.signInWithGoogle(context);
+                              },
+                      );
+                    },
+                   
                   ),
                   const SizedBox(
                     height: 50,
                   ),
-                  Consumer<MyAuthProvider>(
-                    builder: (context, authProvider, child) {
-                      return CustomButton(
-                        text: "Sign up",
-                        isLoading: authProvider.isLoading,
-                        onTap: () {
-                          if (_registerFormKey.currentState!.validate()) {
-                            authProvider.startSignup(
-                                userName: _usernameController.text,
-                                email: _emailController.text,
-                                password: _passwordController.text,
-                                context: context);
-                          }
-                        },
-                      );
-                    },
-                  )
+                 
                 ],
               ),
             ),
@@ -209,27 +231,4 @@ class _SignupViewState extends State<SignupView> {
     );
   }
 
-  _signInWithGoogle() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    try {
-      final GoogleSignInAccount? googleSignInAccount =
-          await googleSignIn.signIn();
-      if (googleSignInAccount != null) {
-        final GoogleSignInAuthentication googleSignInAuthentication =
-            await googleSignInAccount.authentication;
-
-        final AuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleSignInAuthentication.accessToken,
-          idToken: googleSignInAuthentication.idToken,
-        );
-       
-        final UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
-      }
-    } catch (e) {
-      //show toast
-      AlertHelpers.showAlert(context, "Something went wrong");
-    }
-    context.goNamed(RouteName.mainView);
-  }
 }

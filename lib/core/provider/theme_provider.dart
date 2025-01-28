@@ -20,7 +20,6 @@ class ThemeModeProvider extends ChangeNotifier {
 
   void loadTheme() {
     bool isDarkMode = _storageService.getData("isDarkMode") ?? false;
-    print(isDarkMode);
     _themeMode = isDarkMode
         ? appThemesData[AppTheme.darkTheme]!
         : appThemesData[AppTheme.lightTheme]!;

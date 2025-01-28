@@ -337,8 +337,8 @@ class _ProfileState extends State<Profile> {
                             padding: const EdgeInsets.only(bottom: 40),
                             child: CustomButton(
                               text: "LogOut",
-                              onTap: () {
-                                Provider.of<MyAuthProvider>(context,
+                              onTap: () async{
+                                await Provider.of<MyAuthProvider>(context,
                                         listen: false)
                                     .logOut(context);
                                 setState(() {});

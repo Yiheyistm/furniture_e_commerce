@@ -8,10 +8,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:furniture_e_commerce/core/controllers/auth_controller.dart';
-import 'package:furniture_e_commerce/core/features/auth/view/login_view.dart';
 import 'package:furniture_e_commerce/core/helper/alert_helper.dart';
 import 'package:furniture_e_commerce/core/locator/locator.dart';
 import 'package:furniture_e_commerce/model/user_model.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 
@@ -20,15 +20,6 @@ class MyAuthProvider extends ChangeNotifier {
       FirebaseFirestore.instance.collection('users');
 
   final AuthConroller _authConroller = locator<AuthConroller>();
-  // password textfiled controller
-  final TextEditingController _password = TextEditingController();
-
-  TextEditingController get password => _password;
-
-  // Re-entered password textfield controller
-  final TextEditingController _reEnterPassword = TextEditingController();
-
-  TextEditingController get reEnterPassword => _reEnterPassword;
 
   final TextEditingController _oldPassword = TextEditingController();
   final TextEditingController _newPassword = TextEditingController();
@@ -70,12 +61,34 @@ class MyAuthProvider extends ChangeNotifier {
     }
   }
 
+  signInWithGoogle(BuildContext context) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    try {
+      final GoogleSignInAccount? googleSignInAccount =
+          await googleSignIn.signIn();
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication =
+            await googleSignInAccount.authentication;
+
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken,
+        );
+
+        final UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+        final User? user = userCredential.user;
+        _authConroller.saveUserData(
+            user!.email!, user.displayName!, user.uid, user.photoURL);
+        startFetchUserData(context);
+      }
+    } catch (e) {
+      AlertHelpers.showAlert(context, "Something went wrong");
+    }
+  }
+
   // sign out function
   Future<void> logOut(BuildContext context) async {
-    // Navigator.of(context).pushAndRemoveUntil(
-    //     MaterialPageRoute(builder: (context) {
-    //   return const LoginView();
-    // }), (route) => false);
     await FirebaseAuth.instance.signOut();
   }
 
@@ -218,16 +231,6 @@ class MyAuthProvider extends ChangeNotifier {
       setLoading(false);
       AlertHelpers.showAlert(context, e.message ?? "An error occurred");
     }
-  }
-
-  // Validate if passwords match
-  bool validatePasswords(BuildContext context) {
-    if (_password.text != _reEnterPassword.text) {
-      Logger().w("Passwords do not match");
-      AlertHelpers.showAlert(context, "Passwords do not match");
-      return false;
-    }
-    return true;
   }
 
   Future<void> resetPassword(BuildContext context) async {

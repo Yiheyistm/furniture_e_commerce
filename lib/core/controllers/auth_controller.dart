@@ -32,7 +32,7 @@ class AuthConroller {
         if (credential.user!.email != null) {
           Logger().w("User created successfully");
           // if success save the user data to firebase
-          saveUserData(email, userName, credential.user!.uid);
+          saveUserData(email, userName, credential.user!.uid, null);
         } else {
           Logger().w("User not created successfully");
         }
@@ -48,14 +48,15 @@ class AuthConroller {
   CollectionReference users = FirebaseFirestore.instance.collection('users');
 
   /// save extra user data to firebase
-  Future<void> saveUserData(String email, String userName, String uid) async {
+  Future<void> saveUserData(
+      String email, String userName, String uid, String? image) async {
     return users
         .doc(uid)
         .set({
           'uid': uid,
           'userName': userName,
           'email': email,
-          'img': AppAssets.profileUrl,
+          'img': image ?? AppAssets.profileUrl,
         })
         .then((value) => Logger().i("User Added to Firestore"))
         .catchError((error) => Logger().e("Failed to add user: $error"));

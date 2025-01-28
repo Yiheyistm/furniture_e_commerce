@@ -11,7 +11,6 @@ import 'package:furniture_e_commerce/firebase_options.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:showcaseview/showcaseview.dart';
 
 
 Future<void> main() async {
@@ -31,7 +30,6 @@ Future<void> main() async {
     SystemUiMode.edgeToEdge,
     overlays: [SystemUiOverlay.top],
   );
-  // Set up background message handler
 
 
   runApp(
@@ -45,14 +43,13 @@ Future<void> main() async {
         ChangeNotifierProvider(
             create: (context) => ThemeModeProvider()..loadTheme()),
       ],
-      child: const StartWidget(),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  //  flutter_phone_direct_caller
   @override
   Widget build(BuildContext context) {
     StorageService storageService = locator<StorageService>();
@@ -72,15 +69,4 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class StartWidget extends StatelessWidget {
-  const StartWidget({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return ShowCaseWidget(
-      autoPlay: true,
-      autoPlayDelay: const Duration(seconds: 3),
-      builder: (context) => const MyApp(),
-    );
-  }
-}

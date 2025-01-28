@@ -27,7 +27,7 @@ class CustomButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(10)),
         child: isLoading
             ?  SpinKitSpinningLines(
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).dialogBackgroundColor,
                 size: 30,
               )
             : CustomText(

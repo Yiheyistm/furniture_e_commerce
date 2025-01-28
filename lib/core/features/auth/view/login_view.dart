@@ -138,22 +138,25 @@ class _LoginViewState extends State<LoginView> {
                     height: 30,
                   ),
                   Consumer<MyAuthProvider>(
-                    builder: (context, value, child) => CustomButton(
-                      text: "Login",
-                      isLoading: value.isLoading,
-                      onTap: () async {
-                        if (_loginFormKey.currentState!.validate()) {
-                          await value.startLogin(
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                              context: context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const MainView()),
-                          );
-                        }
-                      },
+                    builder: (context, value, child) => SizedBox(
+                      width: double.infinity,
+                      child: CustomButton(
+                        text: "Login",
+                        isLoading: value.isLoading,
+                        onTap: () async {
+                          if (_loginFormKey.currentState!.validate()) {
+                            await value.startLogin(
+                                email: _emailController.text,
+                                password: _passwordController.text,
+                                context: context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MainView()),
+                            );
+                          }
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(
