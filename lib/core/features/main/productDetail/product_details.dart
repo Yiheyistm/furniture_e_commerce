@@ -106,7 +106,6 @@ class ProductDetailsSection extends StatelessWidget {
                 itemsInfo?.itemName ?? "default name",
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: AppColors.whiteColor,
               ),
             ],
           ),

@@ -40,7 +40,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         } else if (snapshot.connectionState == ConnectionState.active) {
           if (snapshot.data != null) {
             Logger().i('User logged in: ${snapshot.data!.displayName}');
-
+            
             return const MainView();
           } else {
             Logger().i('No user found, navigating to SignupView.');

@@ -1,7 +1,6 @@
 // ignore_for_file: unused_local_variable, use_build_context_synchronously
 
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:furniture_e_commerce/core/components/custom_button.dart';
 import 'package:furniture_e_commerce/core/features/main/cart/provider/cartProvider.dart';
@@ -10,7 +9,6 @@ import 'package:furniture_e_commerce/core/features/main/payment/payment.dart';
 import 'package:furniture_e_commerce/core/features/main/profile/model/order.dart';
 import 'package:furniture_e_commerce/core/helper/alert_helper.dart';
 import 'package:furniture_e_commerce/core/utils/app_color.dart';
-import 'package:logger/logger.dart';
 
 class BottomRaw extends StatelessWidget {
   final CartProvider cartProvider;

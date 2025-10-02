@@ -22,14 +22,15 @@ class _CartState extends State<Cart> {
   }
 
   void fetchCartItems() async {
-  final cartProvider = Provider.of<CartProvider>(context, listen: false);
-  await cartProvider.initializeCache();
-  setState(() {});
-}
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    await cartProvider.initializeCache();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
-  
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -42,13 +43,13 @@ class _CartState extends State<Cart> {
                   children: [
                     CommonBackButton(),
                     CustomText(
-                      "Your Cart",
+                      "My Cart",
                       fontSize: 25,
                       fontWeight: FontWeight.w600,
                       color: AppColors.primaryColor,
                     ),
                     Icon(
-                      Icons.abc,
+                      Icons.shopping_bag,
                     ),
                   ],
                 ),
@@ -60,6 +61,7 @@ class _CartState extends State<Cart> {
                 itemCount: cart.cartItems.length,
                 itemBuilder: (ctx, i) {
                   final item = cart.cartItems[i];
+                  print(item.itemID);
 
                   return CartTile(
                     item: item,
@@ -87,5 +89,3 @@ class _CartState extends State<Cart> {
     );
   }
 }
-
-

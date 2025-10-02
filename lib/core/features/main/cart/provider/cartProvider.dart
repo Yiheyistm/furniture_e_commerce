@@ -1,15 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:furniture_e_commerce/core/features/main/profile/model/items.dart';
 import 'package:furniture_e_commerce/core/features/main/profile/model/order.dart'
     as MyOrder;
+import 'package:logger/logger.dart';
 
 class CartProvider extends ChangeNotifier {
   List<Items> _cartItems = [];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CollectionReference _cartRef =
+      FirebaseFirestore.instance.collection('cart');
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  Items? _oldItems;
 
   Future<void> ensureCartDocumentExists() async {
-    final doc = _firestore.collection('cart').doc('currentCart');
+    final doc = _cartRef.doc(_auth.currentUser!.uid);
     final docSnapshot = await doc.get();
     if (!docSnapshot.exists) {
       await doc.set({
@@ -21,13 +27,14 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future initializeCache() async {
-    QuerySnapshot snapshot = await _firestore.collection('cart').get();
-    for (var doc in snapshot.docs) {
+    final doc = await _cartRef.doc(_auth.currentUser!.uid).get();
+    if (doc.exists) {
       var data = doc.data() as Map<String, dynamic>;
       List<Items> firebaseItems =
           (data['items'] as List).map((item) => Items.fromJson(item)).toList();
-      _cartItems.addAll(firebaseItems);
+      _cartItems = firebaseItems; // Clear and set the cart items
     }
+    Logger().i(_cartItems.toString());
     notifyListeners();
   }
 
@@ -36,10 +43,13 @@ class CartProvider extends ChangeNotifier {
   void addToCart(Items item) {
     int index =
         _cartItems.indexWhere((element) => element.itemID == item.itemID);
+   
     if (index != -1) {
+      _oldItems = _cartItems[index];
       _cartItems[index].quantity += 1;
       _updateItemInFirebase(_cartItems[index]);
     } else {
+      _oldItems = item;
       item.quantity = 1;
       _cartItems.add(item);
       _addItemToFirebase(item);
@@ -56,6 +66,7 @@ class CartProvider extends ChangeNotifier {
   void increaseItem(String id) {
     int index = _cartItems.indexWhere((element) => element.itemID == id);
     if (index != -1) {
+      _oldItems = _cartItems[index];
       _cartItems[index].quantity += 1;
       _updateItemInFirebase(_cartItems[index]);
       notifyListeners();
@@ -66,6 +77,7 @@ class CartProvider extends ChangeNotifier {
     int index = _cartItems.indexWhere((element) => element.itemID == id);
     if (index != -1) {
       if (_cartItems[index].quantity > 1) {
+        _oldItems = _cartItems[index];
         _cartItems[index].quantity -= 1;
         _updateItemInFirebase(_cartItems[index]);
       } else {
@@ -110,8 +122,13 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> _updateItemInFirebase(Items item) async {
-    _removeItemFromFirebase(item);
-    await _firestore.collection('cart').doc('currentCart').update({
+    print('#############################3');
+    print('Updating item in firebase');
+    print(_oldItems?.toMap());
+    await _cartRef.doc(_auth.currentUser?.uid).update({
+      'items': FieldValue.arrayRemove([_oldItems?.toMap()]),
+    });
+    await _cartRef.doc(_auth.currentUser?.uid).update({
       'items': FieldValue.arrayUnion([item.toMap()]),
       'totalAmount': calculateTotalPrice(),
       'date': DateTime.now().toIso8601String(),
@@ -119,7 +136,10 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> _addItemToFirebase(Items item) async {
-    await _firestore.collection('cart').doc('currentCart').update({
+    print('#############################3');
+    print('Adding item to firebase');
+
+    await _cartRef.doc(_auth.currentUser?.uid).update({
       'items': FieldValue.arrayUnion([item.toMap()]),
       'totalAmount': calculateTotalPrice(),
       'date': DateTime.now().toIso8601String(),
@@ -127,7 +147,7 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> _removeItemFromFirebase(Items item) async {
-    await _firestore.collection('cart').doc('currentCart').update({
+    await _cartRef.doc(_auth.currentUser?.uid).update({
       'items': FieldValue.arrayRemove([item.toMap()]),
       'totalAmount': calculateTotalPrice(),
       'date': DateTime.now().toIso8601String(),
@@ -136,7 +156,7 @@ class CartProvider extends ChangeNotifier {
 
   Future<void> clearCart() async {
     _cartItems = [];
-    await _firestore.collection('cart').doc('currentCart').update({
+    await _cartRef.doc(_auth.currentUser?.uid).update({
       'items': [],
       'totalAmount': 0.0,
       'date': DateTime.now().toIso8601String(),
@@ -160,7 +180,8 @@ class CartProvider extends ChangeNotifier {
       }
       return Items.fromJson(data);
     }).toList();
-    print(items);
+
+    items.shuffle();
     return items;
   }
 }
