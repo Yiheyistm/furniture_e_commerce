@@ -16,7 +16,7 @@ To get started with this project, follow these steps:
 
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/yourusername/furniture_e_commerce.git
+    git clone https://github.com/yiheyistm/furniture_e_commerce.git
     ```
 2. **Navigate to the project directory:**
     ```bash
